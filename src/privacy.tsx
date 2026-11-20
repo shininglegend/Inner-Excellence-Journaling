@@ -1,17 +1,11 @@
-<!-- Privacy policy -->
-{% extends "layout.html" %}
-
-{% block title %}
-    Privacy policy
-{% endblock %}
-
-{% block main %}
+export const PrivacyPage = () => (
+  <>
     <h1>Privacy Policy</h1>
 
     <p>Your privacy is important to us. It is our policy to respect your privacy regarding any information we may collect from you across our website. This privacy policy explains how we handle your personal data.</p>
 
     <h2>Personal Data We Collect</h2>
-    <p>We collect personal information that you provide to us directly when you register and use our services. This may include your name, email address, and password. We only ask for personal information when we truly need it to provide a service to you. We collect it by fair and lawful means, with your knowledge and consent.</p>
+    <p>We collect personal information that you provide to us directly when you register and use our services. This may include your name and email address. We only ask for personal information when we truly need it to provide a service to you. We collect it by fair and lawful means, with your knowledge and consent.</p>
 
     <h2>Third-Party Services</h2>
     <p>We employ third-party services to facilitate our website; to provide the website on our behalf; to perform website-related services; or to assist us in analyzing how our website is used. These third parties have access to your Personal Data only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.</p>
@@ -26,8 +20,8 @@
     <p>You have the right to access the personal data we hold about you, and to ask that your personal data be corrected, updated, or deleted. If you wish for your data to be deleted, you may send us an email with the subject line "Please delete my data". We will then proceed to delete all your personal information from our databases.</p>
 
     <h2>GDPR Rights</h2>
-    <p>If you are a resident of the European Economic Area (EEA), you have certain data protection rights. If you wish to be informed about what personal data we hold about you and if you want it to be removed from our systems, please contact us. In certain circumstances, you have the following data protection rights:
-        <ul>
+    <p>If you are a resident of the European Economic Area (EEA), you have certain data protection rights. If you wish to be informed about what personal data we hold about you and if you want it to be removed from our systems, please contact us. In certain circumstances, you have the following data protection rights:</p>
+    <ul>
             <li>The right to access, update or delete the information we have on you.</li>
             <li>The right of rectification.</li>
             <li>The right to object.</li>
@@ -35,7 +29,6 @@
             <li>The right to data portability.</li>
             <li>The right to withdraw consent.</li>
         </ul>
-    </p>
 
     <h2>CCPA Rights (Do Not Sell My Personal Information)</h2>
     <p>Under the CCPA, among other rights, California consumers have the right to request that a business that collects a consumer's personal data disclose the categories and specific pieces of personal data that a business has collected about consumers. You also have the right to request that we delete any of your personal data that we collected from you and retained, subject to certain exceptions. To exercise the access, data portability, and deletion rights described above, please submit a verifiable consumer request to us by contacting us.</p>
@@ -45,4 +38,5 @@
 
     <h2>Contact Us</h2>
     <p>If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us.</p>
-{% endblock %}
+  </>
+);

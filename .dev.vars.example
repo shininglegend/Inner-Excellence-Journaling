@@ -1,0 +1,4 @@
+# Copy to .dev.vars (gitignored) for local development.
+# Generate a key with: openssl rand -base64 32
+ENCRYPTION_KEY=
+PRODUCTION=false

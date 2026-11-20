@@ -20,7 +20,12 @@ helpers/__pycache__/
 logs.txt
 
 # The font
-/static/defaultfont.otf
+/public/static/defaultfont.otf
 
 # Forgot vs code
 .vscode/
+# Cloudflare / Node
+node_modules/
+.wrangler/
+.dev.vars
+migrate.sql

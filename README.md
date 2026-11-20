@@ -1,49 +1,37 @@
-# shininglegend.github.io
-This is Titus Murphy's Final Project for CS-50. 
-[Here's a video intro!](https://youtu.be/sRbCkBJYrXc)
-[Here's the github!](https://github.com/shininglegend/shininglegend.github.io)
-(If any files seem missing, check the github.)
+# Inner Excellence Journal
 
-The project is meant to be a mostly developed standalone web page used for clients to journal in and for the admins to be able to respond to the journals. It makes use of the following:
-- Python
-- HTML/CSS
-- SQLite3
-(There is a js file, but it's currently unused.)
-I also rely heavily on:
-- Bootstrap formatting
-- Flask for rendering templates and running my server
+A private journaling site: clients write entries, coaches (admins) respond. Runs on Cloudflare Workers (Hono + JSX) with D1, Workers Static Assets and Cloudflare Email Service.
 
-## Usage:
-The site is not meant to allow just anyone to register - users must have a key + email preregistered in the database by an admin before they can register. 
-The register page is located at [/register](http://127.0.0.1:5000/register) (details as to why in DESIGN.md)
-Here are 2 sample user accounts that have not but will work to register and use to access the logged-in portions. 
-(Emails are not currently validated, so don't worry about accessing the emails themselves.) 
+## How it works
 
-*There are also two more in notes.txt that have been registered, if the ones above fail to register.*
+- **Login**: no passwords. Enter your email and we send a one-time link (valid 15 minutes, single use). Only existing users, emails an admin has invited (`/admin/add-client`) and emails in `ADMIN_EMAILS` can get a link.
+- **Encryption**: journal entries and responses are encrypted with AES-256-GCM before they are written to D1, using the `ENCRYPTION_KEY` Worker secret. Each ciphertext is bound to its row and column. Admins can read entries through the app; Cloudflare storage only ever holds ciphertext. **Losing the key means losing the entries, so back it up.**
+- **Static files** live in `public/` and are served by Workers Static Assets. Everything else is `src/`.
 
-Please note that while I often refer to sites by their direct address (like /clients), they should all be accessible via the navbar. 
+## Local development
 
-### Client Account usage
-Once logged in, you can use the navbar to navigate between pages. The homepage shows all of your journal entries. You can press the button at the top to make a new entry - this will redirect you to a new journal page (and add that entry to the database.) You can then save your draft as via the buttons at the bottom of the page. Once you are ready to submit, you can also submit it via those buttons.
-If you go back to the homepage, you might notice that your new journal has been stored there. If an admin responds to your journal, you will also be able to view the response. The journals each have a "Go to" button which links you to the Journal page. (Please note that the creation time and such is not 100% accurate due to timezones, it is only meant to be approximate.)
+```sh
+npm install
+cp .dev.vars.example .dev.vars        # then set ENCRYPTION_KEY: openssl rand -base64 32
+npm run db:migrate:local
+npm run dev                           # http://localhost:8787
+```
 
-### Admin Account usage
-Admins have the ability to view other people's submitted journals, in addition to their own. 
-The other people's journals are stored in /client-journals. This will be a list - at the top are the ones that have not been responded to (including drafts), then at the bottom are the ones that have been responded to (and the response has been submitted).
-If you go to the response page for a journal, a second textbox appears in which you can type up a response to the person. The buttons at the bottom then correspond to the response and not the person's entry. Admins can not edit other people's entry, even if they do so by modifying the html to allow them to, it will not change the database.
+Locally, login links are printed in the dev server output and admin notifications are logged instead of emailed (`PRODUCTION=false` in `.dev.vars`). Sign in as an address from `ADMIN_EMAILS` to bootstrap the first admin.
 
-Admins also have the ability to view a list of user accounts and add new users. This is via the /clients page. That page will allow them to view all current user accounts and any codes that have been added for unregistered accounts. They can also go to the /add-client page to add new clients, which will then generate and flash them a code. (In the future, this will email that client with an invite to register.)
+## Deploy
 
-## Installation: 
-Requirements: 
-- VS code or other IDE
-- Python 3.10.11
-- Pip
+1. `npx wrangler d1 create ix-journal` and add the returned `database_id` to the `d1_databases` entry in `wrangler.jsonc`.
+2. `npm run db:migrate:remote`
+3. `openssl rand -base64 32 | npx wrangler secret put ENCRYPTION_KEY`
+4. Onboard `innerexcellence.com` for sending: `npx wrangler email sending enable innerexcellence.com`, and add the DNS records it asks for.
+5. `npm run deploy`, then attach your domain to the Worker in the dashboard.
 
-### Steps:
-1) Download and unzip all project files to a new folder. 
-2) [Create a new virtual enviroment](https://code.visualstudio.com/docs/python/environments)
-3) Activate said virtual enviroment. This varies per OS, check the guide linked above.
-4) Run `pip install -r requirements.txt` within the enviroment. 
-5) If no errors, run `flask run` (still within the venv) to start the server.
-6) Flask should give you a website by which my project ui can be accessed. 
+## Importing the old Flask database
+
+```sh
+ENCRYPTION_KEY=<same value as the secret> node scripts/import-sqlite.ts journals.db > migrate.sql
+npx wrangler d1 execute DB --remote --file migrate.sql
+```
+
+Users and journals keep their ids, journal text is encrypted on the way in, and unredeemed registration codes become invites. Passwords are not imported, so everyone signs in with an emailed link.
